@@ -1,0 +1,25 @@
+{
+  "name": "projeto-extensao2",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon ./backend/src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.7",
+    "express": "^5.3.0",
+    "mysql2": "^3.24.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pedro-Rockenbach/projeto-extensao2.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/Pedro-Rockenbach/projeto-extensao2/issues"
+  },
+  "homepage": "https://github.com/Pedro-Rockenbach/projeto-extensao2#readme"
+}
