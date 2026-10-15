@@ -24,7 +24,6 @@ export const consulta = (sql, valores = [], mensagemReject = "Erro na consulta")
         console.error(`${mensagemReject}:`, error.message);
         return reject(error);
       }
-
       return resolve(JSON.parse(JSON.stringify(result)));
     });
   });
