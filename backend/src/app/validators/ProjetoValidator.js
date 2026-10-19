@@ -1,3 +1,6 @@
+// Nomes dos campos e valores das listas seguem o front-end
+// (frontend/src/constants/opcoes.js). Se mudar lá, mude aqui também.
+
 const AREAS_TEMATICAS = [
   "Comunicação",
   "Cultura",
@@ -9,7 +12,7 @@ const AREAS_TEMATICAS = [
   "Trabalho",
 ];
 
-const SITUACOES = ["Inscrições abertas", "Em andamento", "Encerrado"];
+const SITUACOES = ["abertas", "andamento", "encerrado"];
 const VINCULOS = ["Aluno", "Professor", "Servidor"];
 const CAMPI = [
   "Cascavel",
@@ -18,16 +21,17 @@ const CAMPI = [
   "Marechal Cândido Rondon",
   "Toledo",
 ];
-const DIAS_DA_SEMANA = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+const DIAS_DA_SEMANA = ["seg", "ter", "qua", "qui", "sex", "sab"];
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;   // abc@email.com
-const DATE_PATTERN = /^\d{2}-\d{2}-\d{4}$/;           // DD-MM-YYYY
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;           // YYYY-MM-DD (formato do <input type="date">)
 const TIME_PATTERN = /^(?:[01]\d|2[0-3]):[0-5]\d$/;   // HH:MM formato 24h
 
 function isValidDate(value) {
   if (!DATE_PATTERN.test(value)) return false;
 
   const date = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return false;
   return date.toISOString().slice(0, 10) === value;
 }
 
@@ -57,10 +61,10 @@ export function validateProjeto(data) {
   addRequiredStringError(errors, data, "titulo", "Título do projeto");
   addRequiredStringError(errors, data, "descricao", "Descrição");
   addRequiredStringError(errors, data, "publicoAlvo", "Público-alvo");
-  addRequiredStringError(errors, data, "nomePublicador", "Nome");
-  addRequiredStringError(errors, data, "curso", "Curso");
+  addRequiredStringError(errors, data, "autorNome", "Nome");
+  addRequiredStringError(errors, data, "autorCurso", "Curso");
   addRequiredStringError(errors, data, "professorCoordenador", "Professor coordenador");
-  addRequiredStringError(errors, data, "salaLocal", "Sala ou local");
+  addRequiredStringError(errors, data, "local", "Sala ou local");
 
   if (isNonEmptyString(data.titulo) && data.titulo.trim().length > 150) {
     errors.titulo = "Título do projeto deve ter no máximo 150 caracteres.";
@@ -71,11 +75,11 @@ export function validateProjeto(data) {
 
   if (!AREAS_TEMATICAS.includes(data.areaTematica)) errors.areaTematica = "Área temática inválida.";
   if (!SITUACOES.includes(data.situacao)) errors.situacao = "Situação inválida.";
-  if (!VINCULOS.includes(data.vinculo)) errors.vinculo = "Vínculo inválido.";
+  if (!VINCULOS.includes(data.autorVinculo)) errors.autorVinculo = "Vínculo inválido.";
   if (!CAMPI.includes(data.campus)) errors.campus = "Campus inválido.";
 
-  if (!isNonEmptyString(data.email) || !EMAIL_PATTERN.test(data.email.trim())) {
-    errors.email = "E-mail para contato inválido.";
+  if (!isNonEmptyString(data.autorEmail) || !EMAIL_PATTERN.test(data.autorEmail.trim())) {
+    errors.autorEmail = "E-mail para contato inválido.";
   }
 
   if (!isValidDate(data.dataInicio)) errors.dataInicio = "Data de início inválida.";
@@ -87,9 +91,9 @@ export function validateProjeto(data) {
     }
   }
 
-  if (data.numeroVagas !== undefined && data.numeroVagas !== null && data.numeroVagas !== "") {
-    if (!Number.isInteger(data.numeroVagas) || data.numeroVagas <= 0) {
-      errors.numeroVagas = "Número de vagas deve ser um inteiro maior que zero.";
+  if (data.vagas !== undefined && data.vagas !== null && data.vagas !== "") {
+    if (!Number.isInteger(data.vagas) || data.vagas <= 0) {
+      errors.vagas = "Número de vagas deve ser um inteiro maior que zero.";
     }
   }
 
@@ -109,8 +113,8 @@ export function validateProjeto(data) {
     errors.horarioTermino = "Horário de término deve ser posterior ao horário de início.";
   }
 
-  if (data.comoSeInscrever !== undefined && typeof data.comoSeInscrever !== "string") {
-    errors.comoSeInscrever = "Como se inscrever deve ser um texto.";
+  if (data.comoInscrever !== undefined && typeof data.comoInscrever !== "string") {
+    errors.comoInscrever = "Como se inscrever deve ser um texto.";
   }
   if (data.preRequisitos !== undefined && typeof data.preRequisitos !== "string") {
     errors.preRequisitos = "Pré-requisitos devem ser um texto.";
