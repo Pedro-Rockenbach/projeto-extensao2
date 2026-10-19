@@ -46,8 +46,23 @@ class PostagensController {
 
   async store(req, res) {
     try {
-      const postagem = req.body;
-      const result = await PostagensRepository.create(postagem);
+      //Pegar os dados que o Vue envia.
+      const dadosFrontend = req.body;
+
+      //Traduz para o nome das colunas do BD.
+      const postagemParaBanco = {
+        titulo: dadosFrontend.titulo,
+        conteudo: dadosFrontend.descricao,
+        area: dadosFrontend.areaTematica,
+        publico_alvo: dadosFrontend.publicoAlvo,
+        status: dadosFrontend.situacao || 'Inscrições Abertas',
+        vagas: dadosFrontend.vagas || 0,
+        campus: dadosFrontend.campus,
+        local: dadosFrontend.local,
+        usuario_id: 1
+      };
+
+      const result = await PostagensRepository.create(postagemParaBanco);
       res.status(201).json(result);
     } catch (err) {
       console.error(err);
@@ -57,7 +72,19 @@ class PostagensController {
 
   async update(req, res) {
     try {
-      const result = await PostagensRepository.update(req.body, req.params.id);
+      const dadosFrontend = req.body;
+
+      const postagemParaBanco = {
+          titulo: dadosFrontend.titulo,
+         conteudo: dadosFrontend.descricao,
+         area: dadosFrontend.areaTematica,
+         publico_alvo: dadosFrontend.publicoAlvo,
+         status: dadosFrontend.situacao || 'Inscrições Abertas',
+         vagas: dadosFrontend.vagas || 0,
+         campus: dadosFrontend.campus,
+         local: dadosFrontend.local,
+      };
+      const result = await PostagensRepository.update(postagemParaBanco, req.params.id);
       res.json(result);
     } catch (err) {
       console.error(err);
