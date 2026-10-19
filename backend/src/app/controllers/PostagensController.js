@@ -46,6 +46,7 @@ class PostagensController {
 
   async store(req, res) {
     try {
+
       //Pegar os dados que o Vue envia.
       const dadosFrontend = req.body;
 
@@ -64,6 +65,7 @@ class PostagensController {
 
       const result = await PostagensRepository.create(postagemParaBanco);
       res.status(201).json(result);
+
     } catch (err) {
       console.error(err);
       res.status(500).json({ erro: "Erro ao criar postagem" });

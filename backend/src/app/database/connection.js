@@ -7,6 +7,8 @@ const conn = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSW,
   database: "sistema_mural",
+  // DATE chega como 'aaaa-mm-dd' (e nao como Date), que e o formato do <input type="date">
+  dateStrings: true,
 });
 
 conn.connect((error) => {
