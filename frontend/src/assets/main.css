@@ -1,0 +1,201 @@
+/* Paleta Unioeste (fonte: CSS do login Midas/Academus) e estilos base */
+
+:root {
+  --roxo: #433263;
+  --roxo-medio: #6e5380;
+  --roxo-claro: #efebf3;
+  --rosa: #b0375d;
+  --rosa-escuro: #8f2b4b;
+
+  --fundo: #f4f3f6;
+  --superficie: #ffffff;
+  --borda: #dcd7e3;
+  --borda-forte: #b9b1c5;
+  --texto: #2a2433;
+  --texto-suave: #5d566a;
+
+  --verde: #1e7b3a;
+  --verde-fundo: #e3f4e8;
+  --amarelo: #8a6100;
+  --amarelo-fundo: #fdf3d6;
+  --vermelho: #b3261e;
+  --vermelho-fundo: #fbe4e2;
+
+  --raio: 8px;
+  --sombra: 0 1px 2px rgb(42 36 51 / 0.06), 0 2px 8px rgb(42 36 51 / 0.05);
+  --largura-max: 1120px;
+
+  font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--texto);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  font-size: 15px;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+#app > main {
+  flex: 1;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--roxo);
+  line-height: 1.25;
+  margin: 0;
+}
+
+a {
+  color: var(--rosa);
+}
+
+a:hover {
+  color: var(--rosa-escuro);
+}
+
+:focus-visible {
+  outline: 3px solid var(--roxo-medio);
+  outline-offset: 2px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--largura-max);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Botões */
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--raio);
+  font-weight: 600;
+  font-size: 0.93rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.botao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.botao--primario {
+  background: var(--roxo);
+  color: #fff;
+}
+
+.botao--primario:hover:not(:disabled) {
+  background: var(--roxo-medio);
+  color: #fff;
+}
+
+.botao--secundario {
+  background: var(--superficie);
+  border-color: var(--borda-forte);
+  color: var(--roxo);
+}
+
+.botao--secundario:hover:not(:disabled) {
+  background: var(--roxo-claro);
+  color: var(--roxo);
+}
+
+.botao--perigo {
+  background: var(--superficie);
+  border-color: var(--vermelho);
+  color: var(--vermelho);
+}
+
+.botao--perigo:hover:not(:disabled) {
+  background: var(--vermelho-fundo);
+  color: var(--vermelho);
+}
+
+.botao--perigo-cheio {
+  background: var(--vermelho);
+  color: #fff;
+}
+
+.botao--perigo-cheio:hover:not(:disabled) {
+  background: #921f18;
+  color: #fff;
+}
+
+/* Cabeçalho das páginas */
+
+.pagina {
+  padding: 32px 0 56px;
+}
+
+.pagina__voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  color: var(--texto-suave);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.pagina__voltar:hover {
+  color: var(--roxo);
+}
+
+.estado {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--texto-suave);
+  background: var(--superficie);
+  border: 1px dashed var(--borda-forte);
+  border-radius: var(--raio);
+}
+
+.estado p {
+  margin: 0 0 16px;
+}

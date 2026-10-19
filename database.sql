@@ -9,10 +9,10 @@ USE sistema_mural;
 
 CREATE TABLE usuarios (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
+    vinculo ENUM('Aluno', 'Professor', 'Servidor') NOT NULL,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    senha VARCHAR(255) NOT NULL,
+    professor VARCHAR(100) NOT NULL,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -20,6 +20,17 @@ CREATE TABLE postagens (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(150) NOT NULL,
     conteudo TEXT NOT NULL,
+    area ENUM('Comunicação', 'Cultura', 'Direitos Humanos e Justiça', 'Educação', 'Meio Ambiente', 'Saúde', 'Tecnologia e Produção', 'Trabalho') NOT NULL,
+    publico_alvo VARCHAR(100) NOT NULL,
+    status ENUM('Inscrições abertas', 'Em andamento', 'Encerradas'),
+    vagas INT NOT NULL,
+    data_inicio DATE,
+    data_fim DATE,
+    campus ENUM('Cascavel', 'Foz do Iguaçu', 'Francisco Beltrão', 'Marechal Cândido Rondom', 'Toledo') NOT NULL,
+    local VARCHAR(100) NOT NULL,
+    dia_semana SET('Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo') NOT NULL,
+    hora_inicio TIME,
+    hora_termino TIME,
     usuario_id INT NOT NULL,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_usuario_postagem FOREIGN KEY (usuario_id)
