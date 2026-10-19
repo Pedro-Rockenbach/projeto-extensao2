@@ -2,11 +2,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 import QuadroView from '@/views/QuadroView.vue'
 import DetalhesView from '@/views/DetalhesView.vue'
 import FormularioView from '@/views/FormularioView.vue'
+import LoginView from '@/views/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', name: 'quadro', component: QuadroView },
+    { path: '/login', name: 'login', component: LoginView },
     { path: '/projetos/novo', name: 'novo-projeto', component: FormularioView },
     { path: '/projetos/:id', name: 'detalhes-projeto', component: DetalhesView, props: true },
     {
