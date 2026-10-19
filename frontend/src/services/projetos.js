@@ -1,66 +1,93 @@
-// Acesso aos dados de projetos.
-//
-// Por enquanto os dados ficam no localStorage do navegador, começando com
-// projetos de exemplo. Quando a API de projetos estiver pronta no back-end,
-// basta trocar o corpo destas funções por chamadas fetch; as telas não mudam.
+import { api } from "./api";
 
-import { PROJETOS_EXEMPLO } from './dadosExemplo'
-
-const CHAVE = 'projetos-extensao:projetos'
-
-let memoria = null
-
-function carregar() {
-  if (memoria) return memoria
-  try {
-    const salvo = localStorage.getItem(CHAVE)
-    memoria = salvo ? JSON.parse(salvo) : structuredClone(PROJETOS_EXEMPLO)
-  } catch {
-    memoria = structuredClone(PROJETOS_EXEMPLO)
-  }
-  return memoria
+function mapearProjetoDoBackend(item) {
+  if (!item) return null;
+  return {
+    id: item.id,
+    titulo: item.titulo,
+    descricao: item.conteudo,
+    areaTematica: item.area,
+    publicoAlvo: item.publico_alvo,
+    situacao: item.status,
+    vagas: item.vagas,
+    dataInicio: item.data_inicio,
+    dataTermino: item.data_fim,
+    campus: item.campus,
+    local: item.local,
+    diasSemana: item.dia_semana ? item.dia_semana.split(",") : [],
+    horarioInicio: item.hora_inicio,
+    horarioTermino: item.hora_termino,
+    comoInscrever: item.inscricao,
+    preRequisitos: item.requisitos,
+    autorNome: item.autorNome,
+    autorVinculo: item.autorVinculo,
+    autorEmail: item.autorEmail,
+    professorCoordenador: item.professorCoordenador,
+    criadoEm: item.criado_em,
+  };
 }
 
-function salvar() {
-  try {
-    localStorage.setItem(CHAVE, JSON.stringify(memoria))
-  } catch {
-    // Sem localStorage os dados continuam só na memória até recarregar a página.
-  }
-}
-
-function gerarId() {
-  return crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`
-}
-
-// RF02: do mais recente para o mais antigo
 export async function listarProjetos() {
-  return structuredClone(carregar()).sort((a, b) => b.criadoEm.localeCompare(a.criadoEm))
+  const response = await api.get("/postagens");
+  return response.data.map(mapearProjetoDoBackend);
 }
 
 export async function buscarProjeto(id) {
-  const projeto = carregar().find((p) => p.id === id)
-  return projeto ? structuredClone(projeto) : null
+  const response = await api.get(`/postagens/${id}`);
+  return mapearProjetoDoBackend(response.data);
 }
 
 export async function criarProjeto(dados) {
-  const projeto = { ...structuredClone(dados), id: gerarId(), criadoEm: new Date().toISOString() }
-  carregar().push(projeto)
-  salvar()
-  return structuredClone(projeto)
+  const payload = {
+    titulo: dados.titulo,
+    conteudo: dados.descricao,
+    area: dados.areaTematica,
+    publico_alvo: dados.publicoAlvo,
+    status: dados.situacao,
+    vagas: dados.vagas,
+    data_inicio: dados.dataInicio,
+    data_fim: dados.dataTermino,
+    campus: dados.campus,
+    local: dados.local,
+    dia_semana: Array.isArray(dados.diasSemana)
+      ? dados.diasSemana.join(",")
+      : dados.diasSemana,
+    hora_inicio: dados.horarioInicio,
+    hora_termino: dados.horarioTermino,
+    inscricao: dados.comoInscrever,
+    requisitos: dados.preRequisitos,
+    usuario_id: dados.usuario_id || 1,
+  };
+
+  const response = await api.post("/postagens", payload);
+  return { id: response.data.id, ...dados };
 }
 
 export async function atualizarProjeto(id, dados) {
-  const projetos = carregar()
-  const indice = projetos.findIndex((p) => p.id === id)
-  if (indice === -1) throw new Error('Projeto não encontrado.')
-  const { criadoEm } = projetos[indice]
-  projetos[indice] = { ...structuredClone(dados), id, criadoEm, atualizadoEm: new Date().toISOString() }
-  salvar()
-  return structuredClone(projetos[indice])
+  const payload = {
+    titulo: dados.titulo,
+    conteudo: dados.descricao,
+    area: dados.areaTematica,
+    publico_alvo: dados.publicoAlvo,
+    status: dados.situacao,
+    vagas: dados.vagas,
+    data_inicio: dados.dataInicio,
+    data_fim: dados.dataTermino,
+    campus: dados.campus,
+    local: dados.local,
+    dia_semana: Array.isArray(dados.diasSemana)
+      ? dados.diasSemana.join(",")
+      : dados.diasSemana,
+    hora_inicio: dados.horarioInicio,
+    hora_termino: dados.horarioTermino,
+    inscricao: dados.comoInscrever,
+    requisitos: dados.preRequisitos,
+  };
+
+  await api.put(`/postagens/${id}`, payload);
+  return { id, ...dados };
 }
 
 export async function excluirProjeto(id) {
-  memoria = carregar().filter((p) => p.id !== id)
-  salvar()
+  await api.delete(`/postagens/${id}`);
 }

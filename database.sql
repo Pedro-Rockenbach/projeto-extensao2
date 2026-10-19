@@ -32,6 +32,8 @@ CREATE TABLE postagens (
     hora_inicio TIME,
     hora_termino TIME,
     usuario_id INT NOT NULL,
+    inscricao TEXT,
+    requisitos TEXT,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_usuario_postagem FOREIGN KEY (usuario_id)
         REFERENCES usuarios(id)
