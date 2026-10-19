@@ -10,7 +10,8 @@ class PostagensRepository {
     const sql = `
       SELECT p.*, u.email, u.nome AS usuario_nome
       FROM postagens p
-      JOIN usuarios u ON u.id = p.usuario_id;
+      LEFT JOIN usuarios u ON u.id = p.usuario_id
+      ORDER BY p.criado_em DESC, p.id DESC;
     `;
     return consulta(sql, [], "Não foi possível buscar as postagens");
   }
@@ -19,7 +20,7 @@ class PostagensRepository {
     const sql = `
     SELECT p.*, u.email, u.nome AS usuario_nome
     FROM postagens AS p
-    JOIN usuarios AS u ON u.id = p.usuario_id
+    LEFT JOIN usuarios AS u ON u.id = p.usuario_id
     WHERE p.id = ?;
   `;
     return consulta(sql, [id], "Não foi possível buscar a postagem");

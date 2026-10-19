@@ -332,6 +332,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.autorNome"
+                maxlength="150"
                 type="text"
                 autocomplete="name"
                 :aria-invalid="invalido"
@@ -346,6 +347,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.autorCurso"
+                maxlength="150"
                 type="text"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
@@ -384,6 +386,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.autorEmail"
+                maxlength="150"
                 type="email"
                 autocomplete="email"
                 :aria-invalid="invalido"
@@ -404,6 +407,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.professorCoordenador"
+                maxlength="150"
                 type="text"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
@@ -437,6 +441,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.local"
+                maxlength="150"
                 type="text"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"

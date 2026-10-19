@@ -1,16 +1,17 @@
 <script setup>
 import { computed } from 'vue'
-import { rotuloSituacao } from '@/constants/opcoes'
+import { classeSituacao, rotuloSituacao } from '@/constants/opcoes'
 
 const props = defineProps({
   situacao: { type: String, required: true },
 })
 
 const rotulo = computed(() => rotuloSituacao(props.situacao))
+const classe = computed(() => classeSituacao(props.situacao))
 </script>
 
 <template>
-  <span class="etiqueta" :class="`etiqueta--${situacao}`">{{ rotulo }}</span>
+  <span class="etiqueta" :class="`etiqueta--${classe}`">{{ rotulo }}</span>
 </template>
 
 <style scoped>
