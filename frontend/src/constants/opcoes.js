@@ -14,9 +14,9 @@ export const AREAS_TEMATICAS = [
 ]
 
 export const SITUACOES = [
-  { valor: 'Inscrições abertas', rotulo: 'Inscrições abertas' },
-  { valor: 'Em andamento', rotulo: 'Em andamento' },
-  { valor: 'Encerrado', rotulo: 'Encerrado' },
+  { valor: 'Inscrições abertas', rotulo: 'Inscrições abertas', classe: 'abertas' },
+  { valor: 'Em andamento', rotulo: 'Em andamento', classe: 'andamento' },
+  { valor: 'Encerrado', rotulo: 'Encerrado', classe: 'encerrado' },
 ]
 
 export const VINCULOS = ['Aluno', 'Professor', 'Servidor']
@@ -45,4 +45,9 @@ export const LIMITES = {
 
 export function rotuloSituacao(valor) {
   return SITUACOES.find((s) => s.valor === valor)?.rotulo ?? valor
+}
+
+// Classe CSS da etiqueta (o valor tem espaço e acento, então não serve como classe)
+export function classeSituacao(valor) {
+  return SITUACOES.find((s) => s.valor === valor)?.classe ?? ''
 }

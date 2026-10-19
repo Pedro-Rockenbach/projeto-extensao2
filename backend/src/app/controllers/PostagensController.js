@@ -48,7 +48,7 @@ class PostagensController {
     try {
       const postagem = req.body;
       const result = await PostagensRepository.create(postagem);
-      res.status(201).json(result);
+      res.status(201).json({ id: result.insertId });
     } catch (err) {
       console.error(err);
       res.status(500).json({ erro: "Erro ao criar postagem" });
