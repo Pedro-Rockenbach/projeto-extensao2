@@ -2,6 +2,31 @@
 import PostagensRepository from "../repositories/PostagensRepository.js";
 import { validateProjeto } from "../validators/ProjetoValidator.js";
 
+function normalizarDadosParaValidacao(dados) {
+  return {
+    titulo: dados.titulo,
+    descricao: dados.conteudo,
+    areaTematica: dados.area,
+    publicoAlvo: dados.publico_alvo,
+    situacao: dados.status,
+    vagas: dados.vagas,
+    dataInicio: dados.data_inicio,
+    dataTermino: dados.data_fim,
+    autorNome: dados.autor_nome,
+    autorCurso: dados.autor_curso,
+    autorVinculo: dados.autor_vinculo,
+    autorEmail: dados.autor_email,
+    professorCoordenador: dados.professor_coordenador,
+    campus: dados.campus,
+    local: dados.local,
+    diasSemana: typeof dados.dia_semana === "string" ? dados.dia_semana.split(",") : dados.dia_semana,
+    horarioInicio: dados.hora_inicio,
+    horarioTermino: dados.hora_termino,
+    comoInscrever: dados.inscricao,
+    preRequisitos: dados.requisitos,
+  };
+}
+
 class PostagensController {
   async index(req, res) {
     try {
@@ -50,7 +75,7 @@ class PostagensController {
 
       //Pegar os dados que o Vue envia.
       const dadosFrontend = req.body;
-      const errors = validateProjeto(dadosFrontend);
+      const errors = validateProjeto(normalizarDadosParaValidacao(dadosFrontend));
 
       if (Object.keys(errors).length > 0) {
         return res.status(400).json({ erros: errors });
@@ -85,7 +110,7 @@ class PostagensController {
   async update(req, res) {
     try {
       const dadosFrontend = req.body;
-      const errors = validateProjeto(dadosFrontend);
+      const errors = validateProjeto(normalizarDadosParaValidacao(dadosFrontend));
 
       if (Object.keys(errors).length > 0) {
         return res.status(400).json({ erros: errors });
