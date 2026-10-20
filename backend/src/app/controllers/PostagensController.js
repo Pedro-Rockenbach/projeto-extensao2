@@ -46,11 +46,15 @@ class PostagensController {
   }
 
   async store(req, res) {
-<<<<<<< HEAD
     try {
 
       //Pegar os dados que o Vue envia.
       const dadosFrontend = req.body;
+      const errors = validateProjeto(dadosFrontend);
+
+      if (Object.keys(errors).length > 0) {
+        return res.status(400).json({ erros: errors });
+      }
 
       //Traduz para o nome das colunas do BD.
       const postagemParaBanco = {
@@ -58,16 +62,20 @@ class PostagensController {
         conteudo: dadosFrontend.descricao,
         area: dadosFrontend.areaTematica,
         publico_alvo: dadosFrontend.publicoAlvo,
-        status: dadosFrontend.situacao || 'Inscrições Abertas',
+        status: dadosFrontend.situacao || "abertas",
         vagas: dadosFrontend.vagas || 0,
+        data_inicio: dadosFrontend.dataInicio,
+        data_fim: dadosFrontend.dataTermino || null,
         campus: dadosFrontend.campus,
         local: dadosFrontend.local,
-        usuario_id: 1
+        dia_semana: dadosFrontend.diasSemana.join(","),
+        hora_inicio: dadosFrontend.horarioInicio,
+        hora_termino: dadosFrontend.horarioTermino,
+        usuario_id: 1,
       };
 
       const result = await PostagensRepository.create(postagemParaBanco);
       res.status(201).json(result);
-
     } catch (err) {
       console.error(err);
       res.status(500).json({ erro: "Erro ao criar postagem" });
@@ -77,16 +85,26 @@ class PostagensController {
   async update(req, res) {
     try {
       const dadosFrontend = req.body;
+      const errors = validateProjeto(dadosFrontend);
+
+      if (Object.keys(errors).length > 0) {
+        return res.status(400).json({ erros: errors });
+      }
 
       const postagemParaBanco = {
-          titulo: dadosFrontend.titulo,
-         conteudo: dadosFrontend.descricao,
-         area: dadosFrontend.areaTematica,
-         publico_alvo: dadosFrontend.publicoAlvo,
-         status: dadosFrontend.situacao || 'Inscrições Abertas',
-         vagas: dadosFrontend.vagas || 0,
-         campus: dadosFrontend.campus,
-         local: dadosFrontend.local,
+        titulo: dadosFrontend.titulo,
+        conteudo: dadosFrontend.descricao,
+        area: dadosFrontend.areaTematica,
+        publico_alvo: dadosFrontend.publicoAlvo,
+        status: dadosFrontend.situacao || "abertas",
+        vagas: dadosFrontend.vagas || 0,
+        data_inicio: dadosFrontend.dataInicio,
+        data_fim: dadosFrontend.dataTermino || null,
+        campus: dadosFrontend.campus,
+        local: dadosFrontend.local,
+        dia_semana: dadosFrontend.diasSemana.join(","),
+        hora_inicio: dadosFrontend.horarioInicio,
+        hora_termino: dadosFrontend.horarioTermino,
       };
       const result = await PostagensRepository.update(postagemParaBanco, req.params.id);
       res.json(result);
@@ -94,28 +112,6 @@ class PostagensController {
       console.error(err);
       res.status(500).json({ erro: "Erro ao atualizar postagem" });
     }
-=======
-    const postagem = req.body;
-    const errors = validateProjeto(postagem);
-
-    if (Object.keys(errors).length > 0) {
-      return res.status(400).json({ erros: errors });
-    }
-
-    const result = await PostagensRepository.create(postagem);
-    res.status(201).json(result);
-  }
-
-  async update(req, res) {
-    const errors = validateProjeto(req.body);
-
-    if (Object.keys(errors).length > 0) {
-      return res.status(400).json({ erros: errors });
-    }
-
-    const result = await PostagensRepository.update(req.body, req.params.id);
-    res.json(result);
->>>>>>> 407a123 (feat(frontend): altera o formato de horário de AM/PM para 24h e adiciona máscara para horários em formato 24h)
   }
 
   async delete(req, res) {
