@@ -1,5 +1,6 @@
 // controllers/PostagensController.js
 import PostagensRepository from "../repositories/PostagensRepository.js";
+import { validateProjeto } from "../validators/ProjetoValidator.js";
 
 class PostagensController {
   async index(req, res) {
@@ -45,6 +46,7 @@ class PostagensController {
   }
 
   async store(req, res) {
+<<<<<<< HEAD
     try {
 
       //Pegar os dados que o Vue envia.
@@ -92,6 +94,28 @@ class PostagensController {
       console.error(err);
       res.status(500).json({ erro: "Erro ao atualizar postagem" });
     }
+=======
+    const postagem = req.body;
+    const errors = validateProjeto(postagem);
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ erros: errors });
+    }
+
+    const result = await PostagensRepository.create(postagem);
+    res.status(201).json(result);
+  }
+
+  async update(req, res) {
+    const errors = validateProjeto(req.body);
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ erros: errors });
+    }
+
+    const result = await PostagensRepository.update(req.body, req.params.id);
+    res.json(result);
+>>>>>>> 407a123 (feat(frontend): altera o formato de horário de AM/PM para 24h e adiciona máscara para horários em formato 24h)
   }
 
   async delete(req, res) {

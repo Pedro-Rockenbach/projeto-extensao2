@@ -13,6 +13,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@shared': fileURLToPath(new URL('../shared', import.meta.url)),
+    },
+  },
+  server: {
+    fs: {
+      allow: [fileURLToPath(new URL('../shared', import.meta.url))],
     },
   },
 })
