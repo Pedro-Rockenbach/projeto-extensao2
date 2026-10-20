@@ -14,9 +14,9 @@ export const AREAS_TEMATICAS = [
 ]
 
 export const SITUACOES = [
-  { valor: 'abertas', rotulo: 'Inscrições abertas' },
-  { valor: 'andamento', rotulo: 'Em andamento' },
-  { valor: 'encerrado', rotulo: 'Encerrado' },
+  { valor: 'Inscrições abertas', rotulo: 'Inscrições abertas', classe: 'abertas' },
+  { valor: 'Em andamento', rotulo: 'Em andamento', classe: 'andamento' },
+  { valor: 'Encerrado', rotulo: 'Encerrado', classe: 'encerrado' },
 ]
 
 export const VINCULOS = ['Aluno', 'Professor', 'Servidor']
@@ -30,12 +30,12 @@ export const CAMPI = [
 ]
 
 export const DIAS_SEMANA = [
-  { valor: 'seg', rotulo: 'Segunda', curto: 'Seg' },
-  { valor: 'ter', rotulo: 'Terça', curto: 'Ter' },
-  { valor: 'qua', rotulo: 'Quarta', curto: 'Qua' },
-  { valor: 'qui', rotulo: 'Quinta', curto: 'Qui' },
-  { valor: 'sex', rotulo: 'Sexta', curto: 'Sex' },
-  { valor: 'sab', rotulo: 'Sábado', curto: 'Sáb' },
+  { valor: 'Segunda', rotulo: 'Segunda', curto: 'Seg' },
+  { valor: 'Terça', rotulo: 'Terça', curto: 'Ter' },
+  { valor: 'Quarta', rotulo: 'Quarta', curto: 'Qua' },
+  { valor: 'Quinta', rotulo: 'Quinta', curto: 'Qui' },
+  { valor: 'Sexta', rotulo: 'Sexta', curto: 'Sex' },
+  { valor: 'Sábado', rotulo: 'Sábado', curto: 'Sáb' },
 ]
 
 export const LIMITES = {
@@ -45,4 +45,9 @@ export const LIMITES = {
 
 export function rotuloSituacao(valor) {
   return SITUACOES.find((s) => s.valor === valor)?.rotulo ?? valor
+}
+
+// Classe CSS da etiqueta (o valor tem espaço e acento, então não serve como classe)
+export function classeSituacao(valor) {
+  return SITUACOES.find((s) => s.valor === valor)?.classe ?? ''
 }

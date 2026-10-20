@@ -3,8 +3,10 @@
 -- mysql -u root -p < database.sql
 -- ou se for ARCH LINUX, digite:
 -- mariadb -u root -p < database.sql
+-- ATENCAO: o banco e recriado do zero, apagando os dados que ja existiam nele.
 
-CREATE DATABASE IF NOT EXISTS sistema_mural;
+DROP DATABASE IF EXISTS sistema_mural;
+CREATE DATABASE sistema_mural CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE sistema_mural;
 
 CREATE TABLE usuarios (
