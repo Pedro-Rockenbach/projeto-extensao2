@@ -16,6 +16,11 @@ class UsuariosRepository {
     return consulta(sql, id, "Nao foi possivel criar");
   }
 
+  findByEmail(email) {
+    const sql = "SELECT * FROM usuarios WHERE email = ? LIMIT 1;";
+    return consulta(sql, [email], "Nao foi possivel buscar o usuario");
+  }
+
   update(usuario, id) {
     const sql = "UPDATE usuarios SET ? WHERE id=?";
     return consulta(sql, [usuario, id], "Nao foi possivel atualizar");
