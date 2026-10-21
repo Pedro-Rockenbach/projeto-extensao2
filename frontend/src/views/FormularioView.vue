@@ -13,7 +13,7 @@ import {
   VINCULOS,
 } from '@/constants/opcoes'
 import { atualizarProjeto, buscarProjeto, criarProjeto } from '@/services/projetos'
-import { validarProjeto } from '@/utils/validacao'
+import { validateProjeto } from '@shared/ProjetoValidator.js'
 import { useAviso } from '@/composables/useAviso'
 
 const props = defineProps({
@@ -57,7 +57,7 @@ const salvando = ref(false)
 const erroEnvio = ref('')
 
 // RF04: os erros aparecem depois que a pessoa sai do campo ou tenta enviar
-const erros = computed(() => validarProjeto(form))
+const erros = computed(() => validateProjeto(form))
 const tocados = reactive({})
 const tentouEnviar = ref(false)
 
@@ -88,6 +88,25 @@ function erro(campo) {
 
 function tocar(campo) {
   tocados[campo] = true
+}
+
+function formatarHorarioEntrada(valor) {
+  const digitos = String(valor).replace(/\D/g, '').slice(0, 4)
+  if (!digitos) return ''
+  if (Number(digitos[0]) > 2) return ''
+
+  let horario = digitos[0]
+  if (digitos.length > 1) {
+    const hora = Number(digitos.slice(0, 2))
+    if (hora > 23) return digitos[0]
+    horario += digitos[1]
+  }
+  if (digitos.length > 2) {
+    if (Number(digitos[2]) > 5) return horario
+    horario += `:${digitos[2]}`
+  }
+  if (digitos.length > 3) horario += digitos[3]
+  return horario
 }
 
 const quantidadeErros = computed(() => Object.keys(erros.value).length)
@@ -485,9 +504,15 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.horarioInicio"
-                type="time"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="HH:MM"
+                maxlength="5"
+                pattern="(?:[01]\d|2[0-3]):[0-5]\d"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
+                @input="form.horarioInicio = formatarHorarioEntrada($event.target.value)"
                 @blur="tocar('horarioInicio')"
               />
             </template>
@@ -503,9 +528,15 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.horarioTermino"
-                type="time"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="HH:MM"
+                maxlength="5"
+                pattern="(?:[01]\d|2[0-3]):[0-5]\d"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
+                @input="form.horarioTermino = formatarHorarioEntrada($event.target.value)"
                 @blur="tocar('horarioTermino')"
               />
             </template>
