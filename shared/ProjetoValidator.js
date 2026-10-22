@@ -22,6 +22,33 @@ const CAMPI = [
 ];
 const DIAS_DA_SEMANA = ["seg", "ter", "qua", "qui", "sex", "sab"];
 
+// Tamanho máximo de cada campo de texto; acompanha as colunas do database.sql
+const LIMITES = {
+  titulo: 150,
+  descricao: 2000,
+  publicoAlvo: 150,
+  autorNome: 150,
+  autorCurso: 150,
+  autorEmail: 150,
+  professorCoordenador: 150,
+  local: 150,
+  comoInscrever: 1000,
+  preRequisitos: 1000,
+};
+
+const ROTULOS = {
+  titulo: "Título do projeto",
+  descricao: "Descrição",
+  publicoAlvo: "Público-alvo",
+  autorNome: "Nome",
+  autorCurso: "Curso",
+  autorEmail: "E-mail para contato",
+  professorCoordenador: "Professor coordenador",
+  local: "Sala ou local",
+  comoInscrever: "Como se inscrever",
+  preRequisitos: "Pré-requisitos",
+};
+
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_PATTERN = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
@@ -41,6 +68,8 @@ function isNonEmptyString(value) {
 function addRequiredStringError(errors, data, field, label) {
   if (!isNonEmptyString(data[field])) errors[field] = `${label} é obrigatório.`;
 }
+
+export { LIMITES };
 
 export const projetoOptions = {
   areasTematicas: AREAS_TEMATICAS,
@@ -65,12 +94,6 @@ export function validateProjeto(data) {
   addRequiredStringError(errors, data, "professorCoordenador", "Professor coordenador");
   addRequiredStringError(errors, data, "local", "Sala ou local");
 
-  if (isNonEmptyString(data.titulo) && data.titulo.trim().length > 150) {
-    errors.titulo = "Título do projeto deve ter no máximo 150 caracteres.";
-  }
-  if (isNonEmptyString(data.descricao) && data.descricao.trim().length > 2000) {
-    errors.descricao = "Descrição deve ter no máximo 2000 caracteres.";
-  }
 
   if (!AREAS_TEMATICAS.includes(data.areaTematica)) errors.areaTematica = "Área temática inválida.";
   if (!SITUACOES.includes(data.situacao)) errors.situacao = "Situação inválida.";
@@ -118,6 +141,12 @@ export function validateProjeto(data) {
   }
   if (data.preRequisitos !== undefined && typeof data.preRequisitos !== "string") {
     errors.preRequisitos = "Pré-requisitos devem ser um texto.";
+  }
+
+  for (const [campo, limite] of Object.entries(LIMITES)) {
+    if (!errors[campo] && typeof data[campo] === "string" && data[campo].trim().length > limite) {
+      errors[campo] = `${ROTULOS[campo]} deve ter no máximo ${limite} caracteres.`;
+    }
   }
 
   return errors;

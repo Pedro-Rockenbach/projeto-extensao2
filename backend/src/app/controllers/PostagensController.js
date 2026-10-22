@@ -4,7 +4,7 @@ import UsuariosRepository from "../repositories/UsuarioRepository.js";
 import { validateProjeto } from "../validators/ProjetoValidator.js";
 
 function normalizarDadosParaValidacao(dados) {
-  return {
+  const normalizados = {
     titulo: dados.titulo,
     descricao: dados.conteudo,
     areaTematica: dados.area,
@@ -26,35 +26,64 @@ function normalizarDadosParaValidacao(dados) {
     comoInscrever: dados.inscricao,
     preRequisitos: dados.requisitos,
   };
+
+  // Os limites de tamanho são conferidos sem os espaços das pontas,
+  // então é assim que o texto deve ser salvo também
+  for (const campo in normalizados) {
+    if (typeof normalizados[campo] === "string") normalizados[campo] = normalizados[campo].trim();
+  }
+  return normalizados;
 }
 
-async function obterUsuarioId(dados) {
-  const usuarios = await UsuariosRepository.findByEmail(dados.autorEmail);
-  if (usuarios.length > 0) return usuarios[0].id;
-
-  const resultado = await UsuariosRepository.create({
-    vinculo: dados.autorVinculo,
+// Encontra o autor pelo e-mail (ou cria um novo) e atualiza os dados dele
+// com o que veio no formulário
+async function salvarAutor(dados) {
+  const autor = {
     nome: dados.autorNome,
+    curso: dados.autorCurso,
+    vinculo: dados.autorVinculo,
     email: dados.autorEmail,
-    professor: dados.professorCoordenador,
-  });
+  };
 
+  const [existente] = await UsuariosRepository.findByEmail(autor.email);
+  if (existente) {
+    await UsuariosRepository.update(autor, existente.id);
+    return existente.id;
+  }
+
+  const resultado = await UsuariosRepository.create(autor);
   return resultado.insertId;
+}
+
+//Traduz para o nome das colunas do BD.
+function montarPostagemParaBanco(dados, usuarioId) {
+  return {
+    titulo: dados.titulo,
+    conteudo: dados.descricao,
+    area: dados.areaTematica,
+    publico_alvo: dados.publicoAlvo,
+    status: dados.situacao,
+    // campo opcional: vazio vira NULL (e não 0, que o validador recusa ao editar)
+    vagas: dados.vagas === undefined || dados.vagas === null || dados.vagas === "" ? null : Number(dados.vagas),
+    data_inicio: dados.dataInicio,
+    data_fim: dados.dataTermino || null,
+    campus: dados.campus,
+    local: dados.local,
+    dia_semana: dados.diasSemana.join(","),
+    hora_inicio: dados.horarioInicio,
+    hora_termino: dados.horarioTermino,
+    professor_coordenador: dados.professorCoordenador,
+    inscricao: dados.comoInscrever || null,
+    requisitos: dados.preRequisitos || null,
+    usuario_id: usuarioId,
+  };
 }
 
 class PostagensController {
   async index(req, res) {
     try {
       const rows = await PostagensRepository.findAll();
-
-      const postagensFormatadas = rows.map((item) => ({
-        ...item,
-        criado_em: item.criado_em
-          ? new Date(item.criado_em).toISOString()
-          : new Date().toISOString(),
-      }));
-
-      res.json(postagensFormatadas);
+      res.json(rows);
     } catch (err) {
       console.error(err);
       res.status(500).json({ erro: "Erro ao listar postagens" });
@@ -63,22 +92,13 @@ class PostagensController {
 
   async show(req, res) {
     try {
-      let row = await PostagensRepository.findById(req.params.id);
+      const [postagem] = await PostagensRepository.findById(req.params.id);
 
-      if (!row || (Array.isArray(row) && row.length === 0)) {
+      if (!postagem) {
         return res.status(404).json({ erro: "Postagem não encontrada" });
       }
 
-      const postagem = Array.isArray(row) ? row[0] : row;
-
-      const postagemFormatada = {
-        ...postagem,
-        criado_em: postagem.criado_em
-          ? new Date(postagem.criado_em).toISOString()
-          : new Date().toISOString(),
-      };
-
-      res.json(postagemFormatada);
+      res.json(postagem);
     } catch (err) {
       console.error(err);
       res.status(500).json({ erro: "Erro ao buscar postagem" });
@@ -96,27 +116,8 @@ class PostagensController {
         return res.status(400).json({ erros: errors });
       }
 
-      const usuarioId = await obterUsuarioId(dados);
-
-      //Traduz para o nome das colunas do BD.
-      const postagemParaBanco = {
-        titulo: dados.titulo,
-        conteudo: dados.descricao,
-        area: dados.areaTematica,
-        publico_alvo: dados.publicoAlvo,
-        status: dados.situacao || "abertas",
-        vagas: dados.vagas || 0,
-        data_inicio: dados.dataInicio,
-        data_fim: dados.dataTermino || null,
-        campus: dados.campus,
-        local: dados.local,
-        dia_semana: dados.diasSemana.join(","),
-        hora_inicio: dados.horarioInicio,
-        hora_termino: dados.horarioTermino,
-        usuario_id: usuarioId,
-      };
-
-      const result = await PostagensRepository.create(postagemParaBanco);
+      const usuarioId = await salvarAutor(dados);
+      const result = await PostagensRepository.create(montarPostagemParaBanco(dados, usuarioId));
       res.status(201).json({ id: result.insertId });
     } catch (err) {
       console.error(err);
@@ -133,23 +134,14 @@ class PostagensController {
         return res.status(400).json({ erros: errors });
       }
 
-      const postagemParaBanco = {
-        titulo: dados.titulo,
-        conteudo: dados.descricao,
-        area: dados.areaTematica,
-        publico_alvo: dados.publicoAlvo,
-        status: dados.situacao || "abertas",
-        vagas: dados.vagas || 0,
-        data_inicio: dados.dataInicio,
-        data_fim: dados.dataTermino || null,
-        campus: dados.campus,
-        local: dados.local,
-        dia_semana: dados.diasSemana.join(","),
-        hora_inicio: dados.horarioInicio,
-        hora_termino: dados.horarioTermino,
-      };
-      const result = await PostagensRepository.update(postagemParaBanco, req.params.id);
-      res.json(result);
+      const [existente] = await PostagensRepository.findById(req.params.id);
+      if (!existente) {
+        return res.status(404).json({ erro: "Postagem não encontrada" });
+      }
+
+      const usuarioId = await salvarAutor(dados);
+      await PostagensRepository.update(montarPostagemParaBanco(dados, usuarioId), req.params.id);
+      res.json({ id: existente.id });
     } catch (err) {
       console.error(err);
       res.status(500).json({ erro: "Erro ao atualizar postagem" });
@@ -159,7 +151,12 @@ class PostagensController {
   async delete(req, res) {
     try {
       const result = await PostagensRepository.delete(req.params.id);
-      res.json(result);
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ erro: "Postagem não encontrada" });
+      }
+
+      res.status(204).end();
     } catch (err) {
       console.error(err);
       res.status(500).json({ erro: "Erro ao excluir postagem" });

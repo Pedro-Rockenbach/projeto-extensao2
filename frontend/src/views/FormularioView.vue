@@ -53,6 +53,7 @@ function projetoVazio() {
 const form = reactive(projetoVazio())
 const carregando = ref(false)
 const naoEncontrado = ref(false)
+const erroCarregamento = ref('')
 const salvando = ref(false)
 const erroEnvio = ref('')
 
@@ -68,6 +69,7 @@ watch(
     tentouEnviar.value = false
     for (const campo in tocados) delete tocados[campo]
     naoEncontrado.value = false
+    erroCarregamento.value = ''
     if (!id) return
 
     carregando.value = true
@@ -75,6 +77,8 @@ watch(
       const projeto = await buscarProjeto(id)
       if (!projeto) naoEncontrado.value = true
       else Object.assign(form, { ...projeto, vagas: projeto.vagas ?? '' })
+    } catch {
+      erroCarregamento.value = 'Não foi possível carregar o projeto. Tente novamente mais tarde.'
     } finally {
       carregando.value = false
     }
@@ -168,6 +172,8 @@ function cancelar() {
     </p>
 
     <p v-if="carregando" class="estado">Carregando projeto…</p>
+
+    <p v-else-if="erroCarregamento" class="estado" role="alert">{{ erroCarregamento }}</p>
 
     <div v-else-if="naoEncontrado" class="estado">
       <p>Este projeto não foi encontrado. Ele pode ter sido excluído.</p>
@@ -281,7 +287,7 @@ function cancelar() {
                 :id="id"
                 v-model="form.publicoAlvo"
                 type="text"
-                maxlength="150"
+                :maxlength="LIMITES.publicoAlvo"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
                 @blur="tocar('publicoAlvo')"
@@ -351,7 +357,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.autorNome"
-                maxlength="150"
+                :maxlength="LIMITES.autorNome"
                 type="text"
                 autocomplete="name"
                 :aria-invalid="invalido"
@@ -366,7 +372,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.autorCurso"
-                maxlength="150"
+                :maxlength="LIMITES.autorCurso"
                 type="text"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
@@ -405,7 +411,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.autorEmail"
-                maxlength="150"
+                :maxlength="LIMITES.autorEmail"
                 type="email"
                 autocomplete="email"
                 :aria-invalid="invalido"
@@ -426,7 +432,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.professorCoordenador"
-                maxlength="150"
+                :maxlength="LIMITES.professorCoordenador"
                 type="text"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
@@ -460,7 +466,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.local"
-                maxlength="150"
+                :maxlength="LIMITES.local"
                 type="text"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
@@ -554,7 +560,13 @@ function cancelar() {
             dica="Pode ser um texto ou um link (ex.: https://forms.gle/...). Links ficam clicáveis na página do projeto."
           >
             <template #default="{ id, descricao }">
-              <input :id="id" v-model="form.comoInscrever" type="text" :aria-describedby="descricao" />
+              <input
+                :id="id"
+                v-model="form.comoInscrever"
+                type="text"
+                :maxlength="LIMITES.comoInscrever"
+                :aria-describedby="descricao"
+              />
             </template>
           </CampoFormulario>
 
@@ -564,6 +576,7 @@ function cancelar() {
                 :id="id"
                 v-model="form.preRequisitos"
                 rows="3"
+                :maxlength="LIMITES.preRequisitos"
                 class="formulario__texto-curto"
                 :aria-describedby="descricao"
               ></textarea>

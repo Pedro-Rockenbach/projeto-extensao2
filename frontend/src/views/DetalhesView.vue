@@ -82,9 +82,9 @@ async function confirmarExclusao() {
         </div>
         <h1 class="detalhes__titulo">{{ projeto.titulo }}</h1>
         <p class="detalhes__publicado">
-          Publicado em {{ formatarData(projeto.criadoEm.slice(0, 10)) }}
+          Publicado em {{ formatarData(projeto.criadoEm) }}
           <template v-if="projeto.atualizadoEm">
-            · atualizado em {{ formatarData(projeto.atualizadoEm.slice(0, 10)) }}
+            · atualizado em {{ formatarData(projeto.atualizadoEm) }}
           </template>
         </p>
         <div class="detalhes__acoes">
