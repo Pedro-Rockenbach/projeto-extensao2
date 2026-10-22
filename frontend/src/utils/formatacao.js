@@ -10,6 +10,13 @@ export function formatarData(data) {
 
   return `${dia}/${mes}/${ano}`;
 }
+// 'dd/mm/aaaa' -> 'aaaa-mm-dd' (formato do banco). Uma data incompleta volta
+// como está, para a validação apontar que é inválida.
+export function dataParaIso(data) {
+  const partes = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(data ?? "");
+  return partes ? `${partes[3]}-${partes[2]}-${partes[1]}` : data;
+}
+
 export function formatarPeriodo(inicio, termino) {
   if (!termino) return `A partir de ${formatarData(inicio)}`;
   return `${formatarData(inicio)} a ${formatarData(termino)}`;
