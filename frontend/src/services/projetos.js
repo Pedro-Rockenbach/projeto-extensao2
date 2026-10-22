@@ -26,6 +26,7 @@ function mapearProjetoDoBackend(item) {
     autorEmail: item.autor_email,
     professorCoordenador: item.professor_coordenador,
     criadoEm: item.criado_em,
+    atualizadoEm: item.atualizado_em,
   };
 }
 

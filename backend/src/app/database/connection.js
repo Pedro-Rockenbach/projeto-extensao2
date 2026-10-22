@@ -1,27 +1,29 @@
-import "dotenv/config";
 import mysql from "mysql2";
 
-const conn = mysql.createConnection({
+// Pool em vez de uma conexão única: se o MySQL derrubar uma conexão,
+// a próxima consulta abre outra sozinha e a API continua funcionando.
+const pool = mysql.createPool({
   host: process.env.DB_HOST,
   port: 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASSW,
-  database: "sistema_mural",
+  database: process.env.DB_NAME || "sistema_mural",
   // DATE chega como 'aaaa-mm-dd' (e nao como Date), que e o formato do <input type="date">
   dateStrings: true,
 });
 
-conn.connect((error) => {
+pool.getConnection((error, conn) => {
   if (error) {
     console.error("Erro ao conectar ao banco:", error.message);
     return;
   }
   console.log("Conectado ao banco de dados MySQL!");
+  conn.release();
 });
 
 export const consulta = (sql, valores = [], mensagemReject = "Erro na consulta") => {
   return new Promise((resolve, reject) => {
-    conn.query(sql, valores, (error, result) => {
+    pool.query(sql, valores, (error, result) => {
       if (error) {
         console.error(`${mensagemReject}:`, error.message);
         return reject(error);
@@ -31,4 +33,4 @@ export const consulta = (sql, valores = [], mensagemReject = "Erro na consulta")
   });
 };
 
-export default conn;
+export default pool;

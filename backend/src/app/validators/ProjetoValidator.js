@@ -1,1 +1,1 @@
-export { projetoOptions, validateProjeto } from "../../../../shared/ProjetoValidator.js";
+export { LIMITES, projetoOptions, validateProjeto } from "../../../../shared/ProjetoValidator.js";
