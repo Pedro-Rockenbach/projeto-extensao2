@@ -15,6 +15,7 @@ import {
 import { atualizarProjeto, buscarProjeto, criarProjeto } from '@/services/projetos'
 import { validateProjeto } from '@shared/ProjetoValidator.js'
 import { useAviso } from '@/composables/useAviso'
+import { dataParaIso, formatarData } from '@/utils/formatacao'
 
 const props = defineProps({
   id: { type: String, default: '' },
@@ -57,8 +58,18 @@ const erroCarregamento = ref('')
 const salvando = ref(false)
 const erroEnvio = ref('')
 
+// No formulário as datas ficam no formato brasileiro (dd/mm/aaaa);
+// a validação e a API usam aaaa-mm-dd
+function comDatasIso(dados) {
+  return {
+    ...dados,
+    dataInicio: dataParaIso(dados.dataInicio),
+    dataTermino: dataParaIso(dados.dataTermino),
+  }
+}
+
 // RF04: os erros aparecem depois que a pessoa sai do campo ou tenta enviar
-const erros = computed(() => validateProjeto(form))
+const erros = computed(() => validateProjeto(comDatasIso(form)))
 const tocados = reactive({})
 const tentouEnviar = ref(false)
 
@@ -76,7 +87,13 @@ watch(
     try {
       const projeto = await buscarProjeto(id)
       if (!projeto) naoEncontrado.value = true
-      else Object.assign(form, { ...projeto, vagas: projeto.vagas ?? '' })
+      else
+        Object.assign(form, {
+          ...projeto,
+          vagas: projeto.vagas ?? '',
+          dataInicio: formatarData(projeto.dataInicio),
+          dataTermino: formatarData(projeto.dataTermino),
+        })
     } catch {
       erroCarregamento.value = 'Não foi possível carregar o projeto. Tente novamente mais tarde.'
     } finally {
@@ -113,10 +130,18 @@ function formatarHorarioEntrada(valor) {
   return horario
 }
 
+// Máscara dd/mm/aaaa: só números, com as barras colocadas sozinhas
+function formatarDataEntrada(valor) {
+  const digitos = String(valor).replace(/\D/g, '').slice(0, 8)
+  if (digitos.length <= 2) return digitos
+  if (digitos.length <= 4) return `${digitos.slice(0, 2)}/${digitos.slice(2)}`
+  return `${digitos.slice(0, 2)}/${digitos.slice(2, 4)}/${digitos.slice(4)}`
+}
+
 const quantidadeErros = computed(() => Object.keys(erros.value).length)
 
 function prepararDados() {
-  const dados = { ...form }
+  const dados = comDatasIso(form)
   for (const campo in dados) {
     if (typeof dados[campo] === 'string') dados[campo] = dados[campo].trim()
   }
@@ -321,9 +346,14 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.dataInicio"
-                type="date"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="DD/MM/AAAA"
+                maxlength="10"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
+                @input="form.dataInicio = formatarDataEntrada($event.target.value)"
                 @blur="tocar('dataInicio')"
               />
             </template>
@@ -338,10 +368,14 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.dataTermino"
-                type="date"
-                :min="form.dataInicio || undefined"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="DD/MM/AAAA"
+                maxlength="10"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
+                @input="form.dataTermino = formatarDataEntrada($event.target.value)"
                 @blur="tocar('dataTermino')"
               />
             </template>
