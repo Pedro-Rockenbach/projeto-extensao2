@@ -14,8 +14,17 @@ import { RouterLink } from 'vue-router'
       </RouterLink>
 
       <nav class="cabecalho__nav" aria-label="Principal">
-        <RouterLink to="/" class="cabecalho__link">Projetos</RouterLink>
-        <RouterLink :to="{ name: 'novo-projeto' }" class="botao botao--primario">
+        <RouterLink to="/projetos" class="cabecalho__link">Projetos</RouterLink>
+        <RouterLink 
+          v-if="$route.path !== '/login'" 
+          to="/login" class="cabecalho__link"
+          >
+          Entrar
+        </RouterLink>
+        <RouterLink 
+          v-if="$route.path !== '/login'" 
+          to="/login" class="botao botao--primario"
+          >
           Publicar projeto
         </RouterLink>
       </nav>

@@ -12,7 +12,7 @@
                     <router-link to="/projetos" class="btn btn-primary">
                         Ver Projetos Abertos
                     </router-link>
-                    <router-link to="/novo-projeto" class="btn btn-outline">
+                    <router-link to="/login" class="btn btn-outline">
                         Publicar Projeto
                     </router-link>
                 </div>
@@ -80,7 +80,7 @@
 
     .hero-section h1 {
         font-size: 2.4rem;
-        colour: #3b0764;
+        color: #3b0764;
         margin-bottom: 16px;
         font-weight: 700;
     }
