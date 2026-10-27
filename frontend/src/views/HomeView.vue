@@ -6,7 +6,7 @@
                 <span class="badge"> Unioeste · Campus de Cascavel</span>
                 <h1> Mural de Projetos de Extensão </h1>
                 <p class="subtitle">
-                    0 <strong> PostCamp </strong> é a plataforma oficial para divulgar e encontrar oportunidades de extensão universitária no âmbito acadêmico.
+                    O <strong> PostCamp </strong> é a plataforma oficial para divulgar e encontrar oportunidades de extensão universitária no âmbito acadêmico.
                 </p>
                 <div class="hero-buttons">
                     <router-link to="/projetos" class="btn btn-primary">
@@ -26,13 +26,13 @@
                 <div class="feature-card">
                     <div class="icon">📚</div>
                     <h3> Oportunidades de Extensão </h3>
-                    <p> Acompanhe incrições abertas, vagas disponíveis e detalhes sobre atividades acadêmicas. </p>
+                    <p> Acompanhe inscrições abertas, vagas disponíveis e detalhes sobre atividades acadêmicas. </p>
                 </div>
 
                 <div class="feature-card">
                     <div class="icon">🏛️</div>
                     <h3> Integração Universitária </h3>
-                    <p> Conecte-se aos projetos desenvolvidos pelos curso da unioeste e fortaleça a comunidade </p>
+                    <p> Conecte-se aos projetos desenvolvidos pelos cursos da Unioeste e fortaleça a comunidade. </p>
                 </div>
 
                 <div class="feature-card">
@@ -49,7 +49,7 @@
     </script>
 
     <style scoped>
-    .home-cntainer {
+    .home-container {
         max-width: 1100px;
         margin: 0 auto;
         padding: 40px 20px;
@@ -143,7 +143,7 @@
 
     .cards-grid {
         display: grid;
-        grid-template-columns: repeat(autofit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 24px; 
     }
 

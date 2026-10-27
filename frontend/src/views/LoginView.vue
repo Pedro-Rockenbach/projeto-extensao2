@@ -127,7 +127,7 @@ const fazerLogin = () => {
     padding: 10px 14px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-size: 0.95krem;
+    font-size: 0.95rem;
     outline: none;
     transition: border-color 0.2s;
 }

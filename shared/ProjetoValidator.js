@@ -49,7 +49,9 @@ const ROTULOS = {
   preRequisitos: "Pré-requisitos",
 };
 
-const EMAIL_PATTERN = /^([A-Z|a-z|0-9](\.|_){0,1})+[A-Z|a-z|0-9]\@([A-Z|a-z|0-9])+((\.){0,1}[A-Z|a-z|0-9]){2}\.[a-z]{2,3}$/g;
+// Só e-mail institucional da Unioeste (aceita subdomínios, ex.: aluno.unioeste.br).
+// Sem a flag "g": com ela, .test() guarda a posição e o resultado alterna a cada chamada.
+const EMAIL_PATTERN = /^[^\s@]+@([a-z0-9-]+\.)*unioeste\.br$/i;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_PATTERN = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
@@ -101,7 +103,7 @@ export function validateProjeto(data) {
   if (!CAMPI.includes(data.campus)) errors.campus = "Campus inválido.";
 
   if (!isNonEmptyString(data.autorEmail) || !EMAIL_PATTERN.test(data.autorEmail.trim())) {
-    errors.autorEmail = "E-mail para contato inválido.";
+    errors.autorEmail = "Use um e-mail institucional (@unioeste.br).";
   }
 
   if (!isValidDate(data.dataInicio)) errors.dataInicio = "Data de início inválida.";
