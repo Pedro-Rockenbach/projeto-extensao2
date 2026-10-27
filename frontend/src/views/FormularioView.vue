@@ -13,8 +13,9 @@ import {
   VINCULOS,
 } from '@/constants/opcoes'
 import { atualizarProjeto, buscarProjeto, criarProjeto } from '@/services/projetos'
-import { validarProjeto } from '@/utils/validacao'
+import { validateProjeto } from '@shared/ProjetoValidator.js'
 import { useAviso } from '@/composables/useAviso'
+import { dataParaIso, formatarData } from '@/utils/formatacao'
 
 const props = defineProps({
   id: { type: String, default: '' },
@@ -53,11 +54,22 @@ function projetoVazio() {
 const form = reactive(projetoVazio())
 const carregando = ref(false)
 const naoEncontrado = ref(false)
+const erroCarregamento = ref('')
 const salvando = ref(false)
 const erroEnvio = ref('')
 
+// No formulário as datas ficam no formato brasileiro (dd/mm/aaaa);
+// a validação e a API usam aaaa-mm-dd
+function comDatasIso(dados) {
+  return {
+    ...dados,
+    dataInicio: dataParaIso(dados.dataInicio),
+    dataTermino: dataParaIso(dados.dataTermino),
+  }
+}
+
 // RF04: os erros aparecem depois que a pessoa sai do campo ou tenta enviar
-const erros = computed(() => validarProjeto(form))
+const erros = computed(() => validateProjeto(comDatasIso(form)))
 const tocados = reactive({})
 const tentouEnviar = ref(false)
 
@@ -68,13 +80,22 @@ watch(
     tentouEnviar.value = false
     for (const campo in tocados) delete tocados[campo]
     naoEncontrado.value = false
+    erroCarregamento.value = ''
     if (!id) return
 
     carregando.value = true
     try {
       const projeto = await buscarProjeto(id)
       if (!projeto) naoEncontrado.value = true
-      else Object.assign(form, { ...projeto, vagas: projeto.vagas ?? '' })
+      else
+        Object.assign(form, {
+          ...projeto,
+          vagas: projeto.vagas ?? '',
+          dataInicio: formatarData(projeto.dataInicio),
+          dataTermino: formatarData(projeto.dataTermino),
+        })
+    } catch {
+      erroCarregamento.value = 'Não foi possível carregar o projeto. Tente novamente mais tarde.'
     } finally {
       carregando.value = false
     }
@@ -90,10 +111,37 @@ function tocar(campo) {
   tocados[campo] = true
 }
 
+function formatarHorarioEntrada(valor) {
+  const digitos = String(valor).replace(/\D/g, '').slice(0, 4)
+  if (!digitos) return ''
+  if (Number(digitos[0]) > 2) return ''
+
+  let horario = digitos[0]
+  if (digitos.length > 1) {
+    const hora = Number(digitos.slice(0, 2))
+    if (hora > 23) return digitos[0]
+    horario += digitos[1]
+  }
+  if (digitos.length > 2) {
+    if (Number(digitos[2]) > 5) return horario
+    horario += `:${digitos[2]}`
+  }
+  if (digitos.length > 3) horario += digitos[3]
+  return horario
+}
+
+// Máscara dd/mm/aaaa: só números, com as barras colocadas sozinhas
+function formatarDataEntrada(valor) {
+  const digitos = String(valor).replace(/\D/g, '').slice(0, 8)
+  if (digitos.length <= 2) return digitos
+  if (digitos.length <= 4) return `${digitos.slice(0, 2)}/${digitos.slice(2)}`
+  return `${digitos.slice(0, 2)}/${digitos.slice(2, 4)}/${digitos.slice(4)}`
+}
+
 const quantidadeErros = computed(() => Object.keys(erros.value).length)
 
 function prepararDados() {
-  const dados = { ...form }
+  const dados = comDatasIso(form)
   for (const campo in dados) {
     if (typeof dados[campo] === 'string') dados[campo] = dados[campo].trim()
   }
@@ -149,6 +197,8 @@ function cancelar() {
     </p>
 
     <p v-if="carregando" class="estado">Carregando projeto…</p>
+
+    <p v-else-if="erroCarregamento" class="estado" role="alert">{{ erroCarregamento }}</p>
 
     <div v-else-if="naoEncontrado" class="estado">
       <p>Este projeto não foi encontrado. Ele pode ter sido excluído.</p>
@@ -262,7 +312,7 @@ function cancelar() {
                 :id="id"
                 v-model="form.publicoAlvo"
                 type="text"
-                maxlength="150"
+                :maxlength="LIMITES.publicoAlvo"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
                 @blur="tocar('publicoAlvo')"
@@ -296,9 +346,14 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.dataInicio"
-                type="date"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="DD/MM/AAAA"
+                maxlength="10"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
+                @input="form.dataInicio = formatarDataEntrada($event.target.value)"
                 @blur="tocar('dataInicio')"
               />
             </template>
@@ -313,10 +368,14 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.dataTermino"
-                type="date"
-                :min="form.dataInicio || undefined"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="DD/MM/AAAA"
+                maxlength="10"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
+                @input="form.dataTermino = formatarDataEntrada($event.target.value)"
                 @blur="tocar('dataTermino')"
               />
             </template>
@@ -332,7 +391,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.autorNome"
-                maxlength="150"
+                :maxlength="LIMITES.autorNome"
                 type="text"
                 autocomplete="name"
                 :aria-invalid="invalido"
@@ -347,7 +406,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.autorCurso"
-                maxlength="150"
+                :maxlength="LIMITES.autorCurso"
                 type="text"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
@@ -386,7 +445,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.autorEmail"
-                maxlength="150"
+                :maxlength="LIMITES.autorEmail"
                 type="email"
                 autocomplete="email"
                 :aria-invalid="invalido"
@@ -407,7 +466,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.professorCoordenador"
-                maxlength="150"
+                :maxlength="LIMITES.professorCoordenador"
                 type="text"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
@@ -441,7 +500,7 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.local"
-                maxlength="150"
+                :maxlength="LIMITES.local"
                 type="text"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
@@ -485,9 +544,15 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.horarioInicio"
-                type="time"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="HH:MM"
+                maxlength="5"
+                pattern="(?:[01]\d|2[0-3]):[0-5]\d"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
+                @input="form.horarioInicio = formatarHorarioEntrada($event.target.value)"
                 @blur="tocar('horarioInicio')"
               />
             </template>
@@ -503,9 +568,15 @@ function cancelar() {
               <input
                 :id="id"
                 v-model="form.horarioTermino"
-                type="time"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="HH:MM"
+                maxlength="5"
+                pattern="(?:[01]\d|2[0-3]):[0-5]\d"
                 :aria-invalid="invalido"
                 :aria-describedby="descricao"
+                @input="form.horarioTermino = formatarHorarioEntrada($event.target.value)"
                 @blur="tocar('horarioTermino')"
               />
             </template>
@@ -523,7 +594,13 @@ function cancelar() {
             dica="Pode ser um texto ou um link (ex.: https://forms.gle/...). Links ficam clicáveis na página do projeto."
           >
             <template #default="{ id, descricao }">
-              <input :id="id" v-model="form.comoInscrever" type="text" :aria-describedby="descricao" />
+              <input
+                :id="id"
+                v-model="form.comoInscrever"
+                type="text"
+                :maxlength="LIMITES.comoInscrever"
+                :aria-describedby="descricao"
+              />
             </template>
           </CampoFormulario>
 
@@ -533,6 +610,7 @@ function cancelar() {
                 :id="id"
                 v-model="form.preRequisitos"
                 rows="3"
+                :maxlength="LIMITES.preRequisitos"
                 class="formulario__texto-curto"
                 :aria-describedby="descricao"
               ></textarea>
