@@ -14,7 +14,9 @@ const { aviso } = useAviso()
   </main>
 
   <footer class="rodape">
-    <div class="container">Universidade Estadual do Oeste do Paraná · Unioeste</div>
+    <div class="container">
+      Todos os direitos reservados © PostCamp. Mais informações em https://github.com/Pedro-Rockenbach/projeto-extensao2
+    </div>
   </footer>
 
   <div class="aviso" role="status" aria-live="polite">
@@ -31,6 +33,7 @@ const { aviso } = useAviso()
   background: var(--superficie);
   color: var(--texto-suave);
   font-size: 0.82rem;
+  text-align: center;
 }
 
 .aviso {
