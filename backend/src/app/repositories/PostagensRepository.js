@@ -1,5 +1,16 @@
 import { consulta } from "../database/connection.js";
 
+// Dados do autor vêm da tabela usuarios com os mesmos nomes que o front espera
+const SELECT_POSTAGEM = `
+  SELECT p.*,
+    u.nome AS autor_nome,
+    u.curso AS autor_curso,
+    u.vinculo AS autor_vinculo,
+    u.email AS autor_email
+  FROM postagens AS p
+  LEFT JOIN usuarios AS u ON u.id = p.usuario_id
+`;
+
 class PostagensRepository {
   create(postagem) {
     const sql = "INSERT INTO postagens SET ?;";
@@ -7,27 +18,17 @@ class PostagensRepository {
   }
 
   findAll() {
-    const sql = `
-      SELECT p.*, u.email, u.nome AS usuario_nome
-      FROM postagens p
-      LEFT JOIN usuarios u ON u.id = p.usuario_id
-      ORDER BY p.criado_em DESC, p.id DESC;
-    `;
+    const sql = `${SELECT_POSTAGEM} ORDER BY p.criado_em DESC, p.id DESC;`;
     return consulta(sql, [], "Não foi possível buscar as postagens");
   }
 
   findById(id) {
-    const sql = `
-    SELECT p.*, u.email, u.nome AS usuario_nome
-    FROM postagens AS p
-    LEFT JOIN usuarios AS u ON u.id = p.usuario_id
-    WHERE p.id = ?;
-  `;
+    const sql = `${SELECT_POSTAGEM} WHERE p.id = ?;`;
     return consulta(sql, [id], "Não foi possível buscar a postagem");
   }
 
   update(postagem, id) {
-    const sql = "UPDATE postagens SET ? WHERE id = ?;";
+    const sql = "UPDATE postagens SET ?, atualizado_em = CURRENT_TIMESTAMP WHERE id = ?;";
     return consulta(
       sql,
       [postagem, id],
@@ -37,7 +38,7 @@ class PostagensRepository {
 
   delete(id) {
     const sql = "DELETE FROM postagens WHERE id = ?;";
-    return consulta(sql, id, "Não foi possível apagar a postagem");
+    return consulta(sql, [id], "Não foi possível apagar a postagem");
   }
 }
 

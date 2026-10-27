@@ -1,19 +1,22 @@
 import { DIAS_SEMANA } from "@/constants/opcoes";
 
-// 'aaaa-mm-dd' -> 'dd/mm/aaaa' (sem passar por Date, para evitar erro de fuso)
+// 'aaaa-mm-dd' ou 'aaaa-mm-dd hh:mm:ss' -> 'dd/mm/aaaa'
+// (sem passar por Date: converter para UTC faria a data pular um dia à noite)
 export function formatarData(data) {
   if (!data) return "";
 
-  // Se vier um objeto Date do JS ou timestamp com hora, extrai apenas a parte da data 'YYYY-MM-DD'
-  const dataString =
-    typeof data === "string" ? data : new Date(data).toISOString();
-  const apenasData = dataString.split("T")[0]; // Remove a parte da hora se houver (ex: 2026-10-18T...)
-
-  const [ano, mes, dia] = apenasData.split("-");
-  if (!ano || !mes || !dia) return data; // Fallback se o formato for inesperado
+  const [ano, mes, dia] = String(data).slice(0, 10).split("-");
+  if (!ano || !mes || !dia) return String(data); // Fallback se o formato for inesperado
 
   return `${dia}/${mes}/${ano}`;
 }
+// 'dd/mm/aaaa' -> 'aaaa-mm-dd' (formato do banco). Uma data incompleta volta
+// como está, para a validação apontar que é inválida.
+export function dataParaIso(data) {
+  const partes = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(data ?? "");
+  return partes ? `${partes[3]}-${partes[2]}-${partes[1]}` : data;
+}
+
 export function formatarPeriodo(inicio, termino) {
   if (!termino) return `A partir de ${formatarData(inicio)}`;
   return `${formatarData(inicio)} a ${formatarData(termino)}`;
@@ -40,7 +43,6 @@ export function formatarHorario(inicio, termino) {
 // (a pontuação no fim da URL fica de fora do link)
 const URL_REGEX = /(https?:\/\/[^\s]*[^\s.,;:!?)])/g;
 
-// Separa um texto em trechos de texto e de link, para exibir URLs clicáveis
 export function separarLinks(texto = "") {
   // Se o texto for null, undefined ou vazio, retorna uma string vazia tratada
   if (!texto) return [];
