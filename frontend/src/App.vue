@@ -15,7 +15,8 @@ const { aviso } = useAviso()
 
   <footer class="rodape">
     <div class="container">
-      Todos os direitos reservados © PostCamp. Mais informações em https://github.com/Pedro-Rockenbach/projeto-extensao2
+      Todos os direitos reservados © PostCamp. Mais informações em 
+      <a href="https://github.com/Pedro-Rockenbach/projeto-extensao2" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
   </footer>
 
