@@ -9,7 +9,7 @@ import { RouterLink } from 'vue-router'
         <img src="/logo-simples-PostCamp.jpg" alt="" class="cabecalho__logo" width="110" height="110" />
         <span class="cabecalho__textos">
           <span class="cabecalho__instituicao">Unioeste</span>
-          <span class="cabecalho__sistema">PostCamp</span>
+          <span class="cabecalho__sistema">Post Camp</span>
         </span>
       </RouterLink>
 
