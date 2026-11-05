@@ -12,7 +12,7 @@
                     <router-link to="/projetos" class="btn btn-primary">
                         Ver Projetos Abertos
                     </router-link>
-                    <router-link to="/login" class="btn btn-outline">
+                    <router-link to="/projetos/novo" class="btn btn-outline">
                         Publicar Projeto
                     </router-link>
                 </div>
