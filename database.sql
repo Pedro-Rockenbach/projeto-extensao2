@@ -44,3 +44,18 @@ CREATE TABLE postagens (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+-- Sessoes de login (express-session). O id e o hash SHA-256 do id da sessao,
+-- nunca o id em si. expira_em e em segundos (Unix). Apagar o usuario encerra
+-- todas as sessoes dele.
+CREATE TABLE sessoes (
+    id CHAR(64) NOT NULL PRIMARY KEY,
+    usuario_id INT NULL,
+    dados TEXT NOT NULL,
+    expira_em INT UNSIGNED NOT NULL,
+    INDEX idx_sessoes_expira_em (expira_em),
+    CONSTRAINT fk_usuario_sessao FOREIGN KEY (usuario_id)
+        REFERENCES usuarios(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);

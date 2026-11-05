@@ -2,8 +2,13 @@
 import { Router } from "express";
 import UsuariosController from "./app/controllers/UsuarioController.js";
 import PostagensController from "./app/controllers/PostagensController.js";
+import SessaoController from "./app/controllers/SessaoController.js";
 
 const router = Router();
+
+// A rota de login cria a sessão com iniciarSessao (app/middlewares/sessao.js)
+router.get("/sessao", SessaoController.show);
+router.delete("/sessao", SessaoController.delete);
 
 // Sem login ainda: usuários só são consultados aqui; quem cria e atualiza
 // o autor é a rota de postagens. Rotas de escrita voltam com a autenticação.
