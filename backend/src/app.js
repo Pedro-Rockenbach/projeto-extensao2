@@ -1,7 +1,14 @@
 import express from "express";
 import routes from "./routes.js";
 import cors from "cors";
+import helmet from "helmet";
 import { sessao } from "./app/middlewares/sessao.js";
+import {
+  FRONTEND_URL,
+  exigirJson,
+  tratarErros,
+  verificarOrigem,
+} from "./app/middlewares/seguranca.js";
 
 const app = express();
 
@@ -13,15 +20,24 @@ if (process.env.TRUST_PROXY) {
   app.set("trust proxy", /^\d+$/.test(valor) ? Number(valor) : valor);
 }
 
+// Cabeçalhos de segurança (nosniff, HSTS, frame-ancestors etc.) e sem o
+// X-Powered-By, que contaria que a API é Express. same-site: o front em
+// localhost:5173 ainda pode ler as respostas da API em localhost:3000.
+app.use(helmet({ crossOriginResourcePolicy: { policy: "same-site" } }));
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: FRONTEND_URL,
     credentials: true, // deixa o navegador enviar o cookie de sessão
   }),
 );
 
-app.use(express.json());
+app.use(verificarOrigem);
+app.use(exigirJson);
+// O maior projeto possível tem bem menos que isso; corpos maiores são recusados
+app.use(express.json({ limit: "50kb" }));
 app.use(sessao);
 app.use(routes);
+app.use(tratarErros);
 
 export default app;
