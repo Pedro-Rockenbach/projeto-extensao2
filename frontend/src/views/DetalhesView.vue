@@ -7,6 +7,7 @@ import DialogoConfirmacao from '@/components/DialogoConfirmacao.vue'
 import SituacaoEtiqueta from '@/components/SituacaoEtiqueta.vue'
 import { buscarProjeto, excluirProjeto } from '@/services/projetos'
 import { useAviso } from '@/composables/useAviso'
+import { useSessao } from '@/composables/useSessao'
 import {
   formatarData,
   formatarDias,
@@ -20,6 +21,7 @@ const props = defineProps({
 
 const router = useRouter()
 const { mostrarAviso } = useAviso()
+const { usuario } = useSessao()
 
 const projeto = ref(null)
 const carregando = ref(true)
@@ -53,8 +55,10 @@ async function confirmarExclusao() {
     confirmandoExclusao.value = false
     mostrarAviso('Projeto excluído.')
     router.push({ name: 'quadro' })
-  } catch {
-    mostrarAviso('Não foi possível excluir o projeto.')
+  } catch (e) {
+    confirmandoExclusao.value = false
+    // 401: a sessão expirou e o aviso já foi dado (main.js)
+    if (e.response?.status !== 401) mostrarAviso('Não foi possível excluir o projeto.')
   } finally {
     excluindo.value = false
   }
@@ -87,7 +91,7 @@ async function confirmarExclusao() {
             · atualizado em {{ formatarData(projeto.atualizadoEm) }}
           </template>
         </p>
-        <div class="detalhes__acoes">
+        <div v-if="usuario" class="detalhes__acoes">
           <RouterLink
             :to="{ name: 'editar-projeto', params: { id: projeto.id } }"
             class="botao botao--secundario"

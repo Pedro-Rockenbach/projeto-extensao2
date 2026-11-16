@@ -10,6 +10,8 @@
             </div>
 
             <form @submit.prevent="fazerLogin" class="login-form">
+                <p v-if="erro" class="login-erro" role="alert">{{ erro }}</p>
+
                 <div class="input-group">
                     <label for="email">E-mail institucional</label>
                     <input
@@ -17,8 +19,9 @@
                       id="email"
                       v-model="email"
                       placeholder="seu.nome@unioeste.br"
+                      autocomplete="username"
                       required
-                    />   
+                    />
                 </div>
 
                 <div class="input-group">
@@ -28,11 +31,14 @@
                       id="senha"
                       v-model="senha"
                       placeholder="********"
+                      autocomplete="current-password"
                       required
-                    />  
+                    />
                 </div>
 
-                <button type="submit" class="btn-submit">Entrar no Sistema</button>
+                <button type="submit" class="btn-submit" :disabled="enviando">
+                    {{ enviando ? 'Entrando…' : 'Entrar no Sistema' }}
+                </button>
             </form>
 
             <div class="login-footer">
@@ -44,21 +50,43 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { destinoAposLogin, useSessao } from '@/composables/useSessao'
+import { useAviso } from '@/composables/useAviso'
 
+const route = useRoute()
 const router = useRouter()
+const { entrar } = useSessao()
+const { mostrarAviso } = useAviso()
+
 const email = ref('')
 const senha = ref('')
+const erro = ref('')
+const enviando = ref(false)
 
-const fazerLogin = () => {
-    //apenas um mock
-    localStorage.setItem('postcamp_logado', 'true')
-    localStorage.setItem('postcamp_user', email.value)
+// A mesma mensagem para e-mail sem conta e senha errada, para não revelar
+// quem tem cadastro
+function mensagemDeErro(status) {
+    if (status === 400 || status === 401) return 'E-mail ou senha incorretos.'
+    if (status === 429) return 'Muitas tentativas. Aguarde alguns minutos e tente de novo.'
+    return 'Não foi possível entrar agora. Tente novamente.'
+}
 
-    alert('Login simulado com sucesso! Bem-vindo ao PostCamp.')
-
-    //redirecionando para mural de projetos
-    router.push('/projetos/novo')
+const fazerLogin = async () => {
+    erro.value = ''
+    enviando.value = true
+    try {
+        await entrar(email.value.trim(), senha.value)
+        mostrarAviso('Login realizado.')
+        // replace: o "voltar" do navegador não retorna para a tela de login
+        router.replace(destinoAposLogin(route.query.voltar))
+    } catch (e) {
+        erro.value = mensagemDeErro(e.response?.status)
+    } finally {
+        // A senha não fica guardada na tela depois da tentativa
+        senha.value = ''
+        enviando.value = false
+    }
 }
 </script>
 
@@ -149,8 +177,24 @@ const fazerLogin = () => {
     transition: background-color 0.2s;
 }
 
-.btn-submit:hover {
+.btn-submit:hover:not(:disabled) {
     background-color: #3b0764;
+}
+
+.btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.login-erro {
+    margin: 0;
+    padding: 10px 14px;
+    border-left: 4px solid var(--vermelho);
+    border-radius: 8px;
+    background: var(--vermelho-fundo);
+    color: var(--vermelho);
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
 .login-footer {
