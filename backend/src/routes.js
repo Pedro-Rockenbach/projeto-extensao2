@@ -8,6 +8,7 @@ import { exigirLogin } from "./app/middlewares/sessao.js";
 const router = Router();
 
 // A rota de login cria a sessão com iniciarSessao (app/middlewares/sessao.js)
+router.post("/sessao", SessaoController.create);
 router.get("/sessao", SessaoController.show);
 router.delete("/sessao", SessaoController.delete);
 

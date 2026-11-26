@@ -20,8 +20,18 @@ class UsuariosRepository {
   }
 
   findByEmail(email) {
-    const sql = "SELECT * FROM usuarios WHERE email = ? LIMIT 1;";
+    const sql = "SELECT id FROM usuarios WHERE email = ? LIMIT 1;";
     return consulta(sql, [email], "Nao foi possivel buscar o usuario");
+  }
+
+  findCredentialsByEmail(email) {
+    const sql = `
+      SELECT id, nome, curso, vinculo, email, senha_hash
+      FROM usuarios
+      WHERE email = ?
+      LIMIT 1;
+    `;
+    return consulta(sql, [email], "Não foi possível buscar as credenciais do usuário");
   }
 
   update(usuario, id) {
