@@ -1,9 +1,40 @@
 import UsuariosRepository from "../repositories/UsuarioRepository.js";
-import { encerrarSessao } from "../middlewares/sessao.js";
+import { encerrarSessao, iniciarSessao } from "../middlewares/sessao.js";
+import { verificarSenha } from "../utils/senha.js";
 
-// O login em si (conferir e-mail e senha) fica na rota de login, que chama
-// iniciarSessao; aqui ficam a consulta da sessão atual e o logout.
 class SessaoController {
+  async create(req, res) {
+    res.set("Cache-Control", "no-store");
+
+    const email = typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
+    const senha = req.body?.senha;
+    if (
+      !email ||
+      email.length > 150 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      typeof senha !== "string" ||
+      !senha ||
+      Buffer.byteLength(senha, "utf8") > 1024
+    ) {
+      return res.status(400).json({ erro: "Dados de login inválidos." });
+    }
+
+    try {
+      const [usuario] = await UsuariosRepository.findCredentialsByEmail(email);
+      const senhaValida = await verificarSenha(senha, usuario?.senha_hash);
+
+      if (!usuario || !senhaValida) {
+        return res.status(401).json({ erro: "E-mail ou senha incorretos." });
+      }
+
+      await iniciarSessao(req, usuario.id);
+      res.status(204).end();
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ erro: "Não foi possível realizar o login." });
+    }
+  }
+
   // Quem está logado; { usuario: null } para visitante
   async show(req, res) {
     // Resposta com dados do usuário logado não deve ficar em cache

@@ -15,6 +15,7 @@ CREATE TABLE usuarios (
     nome VARCHAR(150) NOT NULL,
     curso VARCHAR(150) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
+    senha_hash VARCHAR(255) NULL,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
