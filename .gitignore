@@ -1,5 +1,32 @@
+# Dependências e builds
 node_modules/
+dist/
+build/
+*.tsbuildinfo
 
+# Variáveis de ambiente e segredos
 .env
 .env.*
 !.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Bancos locais e logs
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# Docker / volumes locais (se houver pastas montadas no host)
+mysql-data/
+data/
+
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+! .vscode/extensions.json

@@ -1,34 +1,29 @@
 import UsuariosRepository from "../repositories/UsuarioRepository.js";
 
+// Os usuários são criados e atualizados junto com as postagens
+// (PostagensController), então aqui ficam só as consultas.
 class UsuariosController {
   async index(req, res) {
-    const row = await UsuariosRepository.findAll();
-    res.json(row);
+    try {
+      const rows = await UsuariosRepository.findAll();
+      res.json(rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ erro: "Erro ao listar usuários" });
+    }
   }
 
   async show(req, res) {
-    const id = req.params.id;
-    const row = await UsuariosRepository.findById(id);
-    res.json(row);
-  }
-
-  async store(req, res) {
-    const usuario = req.body;
-    const row = await UsuariosRepository.create(usuario);
-    res.json(row);
-  }
-
-  async update(req, res) {
-    const id = req.params.id;
-    const usuario = req.body;
-    const row = await UsuariosRepository.update(usuario, id);
-    res.json(row);
-  }
-
-  async delete(req, res) {
-    const id = req.params.id;
-    const row = await UsuariosRepository.delete(id);
-    res.json(row);
+    try {
+      const [usuario] = await UsuariosRepository.findById(req.params.id);
+      if (!usuario) {
+        return res.status(404).json({ erro: "Usuário não encontrado" });
+      }
+      res.json(usuario);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ erro: "Erro ao buscar usuário" });
+    }
   }
 }
 

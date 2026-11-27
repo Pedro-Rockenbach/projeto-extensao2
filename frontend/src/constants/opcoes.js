@@ -1,48 +1,46 @@
 // Opções dos campos de lista do formulário.
-// Ficam centralizadas aqui para serem reaproveitadas no formulário, na
-// exibição e, futuramente, nos filtros do quadro.
+// Os valores e os limites vêm das regras compartilhadas com o backend
+// (shared/ProjetoValidator.js); aqui ficam só os rótulos exibidos na tela.
+import { LIMITES, projetoOptions } from '@shared/ProjetoValidator.js'
 
-export const AREAS_TEMATICAS = [
-  'Comunicação',
-  'Cultura',
-  'Direitos Humanos e Justiça',
-  'Educação',
-  'Meio Ambiente',
-  'Saúde',
-  'Tecnologia e Produção',
-  'Trabalho',
-]
+export { LIMITES }
 
-export const SITUACOES = [
-  { valor: 'abertas', rotulo: 'Inscrições abertas' },
-  { valor: 'andamento', rotulo: 'Em andamento' },
-  { valor: 'encerrado', rotulo: 'Encerrado' },
-]
-
-export const VINCULOS = ['Aluno', 'Professor', 'Servidor']
-
-export const CAMPI = [
-  'Cascavel',
-  'Foz do Iguaçu',
-  'Francisco Beltrão',
-  'Marechal Cândido Rondon',
-  'Toledo',
-]
-
-export const DIAS_SEMANA = [
-  { valor: 'seg', rotulo: 'Segunda', curto: 'Seg' },
-  { valor: 'ter', rotulo: 'Terça', curto: 'Ter' },
-  { valor: 'qua', rotulo: 'Quarta', curto: 'Qua' },
-  { valor: 'qui', rotulo: 'Quinta', curto: 'Qui' },
-  { valor: 'sex', rotulo: 'Sexta', curto: 'Sex' },
-  { valor: 'sab', rotulo: 'Sábado', curto: 'Sáb' },
-]
-
-export const LIMITES = {
-  titulo: 150,
-  descricao: 2000,
+const ROTULOS_SITUACAO = {
+  abertas: 'Inscrições abertas',
+  andamento: 'Em andamento',
+  encerrado: 'Encerrado',
 }
 
+const ROTULOS_DIA = {
+  seg: { rotulo: 'Segunda', curto: 'Seg' },
+  ter: { rotulo: 'Terça', curto: 'Ter' },
+  qua: { rotulo: 'Quarta', curto: 'Qua' },
+  qui: { rotulo: 'Quinta', curto: 'Qui' },
+  sex: { rotulo: 'Sexta', curto: 'Sex' },
+  sab: { rotulo: 'Sábado', curto: 'Sáb' },
+}
+
+export const AREAS_TEMATICAS = projetoOptions.areasTematicas
+
+export const SITUACOES = projetoOptions.situacoes.map((valor) => ({
+  valor,
+  rotulo: ROTULOS_SITUACAO[valor],
+}))
+
+export const VINCULOS = projetoOptions.vinculos
+
+export const CAMPI = projetoOptions.campi
+
+export const DIAS_SEMANA = projetoOptions.diasDaSemana.map((valor) => ({
+  valor,
+  ...ROTULOS_DIA[valor],
+}))
+
 export function rotuloSituacao(valor) {
-  return SITUACOES.find((s) => s.valor === valor)?.rotulo ?? valor
+  return ROTULOS_SITUACAO[valor] ?? valor
+}
+
+// Classe CSS da etiqueta; vazia para um valor desconhecido
+export function classeSituacao(valor) {
+  return valor in ROTULOS_SITUACAO ? valor : ''
 }

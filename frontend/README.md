@@ -36,3 +36,31 @@ npm run dev
 ```sh
 npm run build
 ```
+
+## Tela de perfil
+
+A tela autenticada do perfil fica em `src/views/PerfilView.vue` e é acessada pela rota `/perfil`.
+
+### O que foi implementado
+
+- Exibe iniciais do usuário, nome, e-mail, curso e tipo de vínculo.
+- Permite editar nome, curso e vínculo, com feedback de carregamento, erro e sucesso.
+- Inclui formulário de alteração de senha, com confirmação e validação mínima.
+- Oferece logout usando o serviço de sessão existente.
+- Adiciona o link “Meu perfil” no cabeçalho para usuários autenticados.
+- Protege `/perfil` pelo guard de autenticação do roteador. Visitantes são enviados ao login e retornam ao perfil após entrar.
+- Mantém chamadas de perfil isoladas em `src/services/perfil.js` e atualiza o usuário em `useSessao` após salvar.
+
+### Integração com a API
+
+- `PATCH /sessao/perfil` atualiza nome, curso e vínculo do usuário identificado pela sessão atual. O e-mail é somente leitura.
+- A sessão usa cookie `httpOnly`; o frontend não armazena token em `localStorage`.
+- A chamada de alteração de senha está preparada para `PUT /sessao/senha`, mas esse endpoint ainda precisa ser implementado no backend. Enquanto isso, a interface informa que a função não está disponível.
+
+### Arquivos relacionados
+
+- `src/views/PerfilView.vue` — interface do perfil.
+- `src/services/perfil.js` — atualização do perfil e chamada preparada para alteração de senha.
+- `src/router/index.js` — rota e proteção de autenticação.
+- `src/components/AppCabecalho.vue` — link para o perfil.
+- `src/composables/useSessao.js` — atualização do usuário na sessão do frontend.

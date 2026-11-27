@@ -3,16 +3,18 @@
 -- mysql -u root -p < database.sql
 -- ou se for ARCH LINUX, digite:
 -- mariadb -u root -p < database.sql
+-- ATENCAO: o banco e recriado do zero, apagando os dados que ja existiam nele.
 
-CREATE DATABASE IF NOT EXISTS sistema_mural;
+DROP DATABASE IF EXISTS sistema_mural;
+CREATE DATABASE sistema_mural CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE sistema_mural;
 
 CREATE TABLE usuarios (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     vinculo ENUM('Aluno', 'Professor', 'Servidor') NOT NULL,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    professor VARCHAR(100) NOT NULL,
+    nome VARCHAR(150) NOT NULL,
+    curso VARCHAR(150) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -21,19 +23,38 @@ CREATE TABLE postagens (
     titulo VARCHAR(150) NOT NULL,
     conteudo TEXT NOT NULL,
     area ENUM('Comunicação', 'Cultura', 'Direitos Humanos e Justiça', 'Educação', 'Meio Ambiente', 'Saúde', 'Tecnologia e Produção', 'Trabalho') NOT NULL,
-    publico_alvo VARCHAR(100) NOT NULL,
-    status ENUM('Inscrições abertas', 'Em andamento', 'Encerradas'),
-    vagas INT NOT NULL,
+    publico_alvo VARCHAR(150) NOT NULL,
+    status ENUM('abertas', 'andamento', 'encerrado') NOT NULL,
+    vagas INT,
     data_inicio DATE,
     data_fim DATE,
-    campus ENUM('Cascavel', 'Foz do Iguaçu', 'Francisco Beltrão', 'Marechal Cândido Rondom', 'Toledo') NOT NULL,
-    local VARCHAR(100) NOT NULL,
-    dia_semana SET('Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo') NOT NULL,
+    campus ENUM('Cascavel', 'Foz do Iguaçu', 'Francisco Beltrão', 'Marechal Cândido Rondon', 'Toledo') NOT NULL,
+    local VARCHAR(150) NOT NULL,
+    dia_semana SET('seg', 'ter', 'qua', 'qui', 'sex', 'sab') NOT NULL,
     hora_inicio TIME,
     hora_termino TIME,
+    professor_coordenador VARCHAR(150) NOT NULL,
+    inscricao TEXT,
+    requisitos TEXT,
     usuario_id INT NOT NULL,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP NULL DEFAULT NULL,
     CONSTRAINT fk_usuario_postagem FOREIGN KEY (usuario_id)
+        REFERENCES usuarios(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+-- Sessoes de login (express-session). O id e o hash SHA-256 do id da sessao,
+-- nunca o id em si. expira_em e em segundos (Unix). Apagar o usuario encerra
+-- todas as sessoes dele.
+CREATE TABLE sessoes (
+    id CHAR(64) NOT NULL PRIMARY KEY,
+    usuario_id INT NULL,
+    dados TEXT NOT NULL,
+    expira_em INT UNSIGNED NOT NULL,
+    INDEX idx_sessoes_expira_em (expira_em),
+    CONSTRAINT fk_usuario_sessao FOREIGN KEY (usuario_id)
         REFERENCES usuarios(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
